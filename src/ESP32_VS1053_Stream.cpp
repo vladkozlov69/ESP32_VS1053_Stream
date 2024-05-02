@@ -495,7 +495,11 @@ void ESP32_VS1053_Stream::_handleStream(WiFiClient *const stream)
             _musicDataPosition += _metaDataStart ? BYTES_IN_BUFFER : 0;
             bytesToDecoder += BYTES_IN_BUFFER;
         }
-        log_d("spend %lu ms stuffing %i bytes in decoder", millis() - start, bytesToDecoder);
+        log_v("spend %lu ms stuffing %i bytes in decoder", millis() - start, bytesToDecoder);
+        if (bytesToDecoder == 0)
+        {
+            log_e("Stream hanged");
+        }
     }
 
     if (stream && stream->available() && _metaDataStart && _musicDataPosition == _metaDataStart)
