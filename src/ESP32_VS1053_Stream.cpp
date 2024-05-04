@@ -479,8 +479,8 @@ void ESP32_VS1053_Stream::_handleStream(WiFiClient *const stream)
     {
         const auto MAX_TIME_MS = 15;
         size_t bytesToDecoder = 0;
-        Serial.printf("Avail: %d, DRQ:%s, _remainingBytes:%d, _musicDataPosition:%d, _metaDataStart: %d\n", 
-            stream->available(), _vs1053->data_request() ? "Y":"N", _remainingBytes, _musicDataPosition, _metaDataStart);
+        // Serial.printf("Avail: %d, DRQ:%s, _remainingBytes:%d, _musicDataPosition:%d, _metaDataStart: %d\n", 
+        //     stream->available(), _vs1053->data_request() ? "Y":"N", _remainingBytes, _musicDataPosition, _metaDataStart);
 
         const auto start = millis();
         while (stream && stream->available() && _vs1053->data_request() && _remainingBytes &&
