@@ -478,16 +478,19 @@ void ESP32_VS1053_Stream::_handleStream(WiFiClient *const stream)
     else
     {
         const auto MAX_TIME_MS = 15;
-        const auto start = millis();
         size_t bytesToDecoder = 0;
+        Serial.printf("Avail: %d, DRQ:%s, _remainingBytes:%d, _musicDataPosition:%d, _metaDataStart: %d\n", 
+            stream->available(), _vs1053->data_request() ? "Y":"N", _remainingBytes, _musicDataPosition, _metaDataStart);
+
+        const auto start = millis();
         while (stream && stream->available() && _vs1053->data_request() && _remainingBytes &&
                _musicDataPosition < _metaDataStart && millis() - start < MAX_TIME_MS)
         {
             const size_t BYTES_AVAILABLE = _metaDataStart ? _metaDataStart - _musicDataPosition : stream->available();
             const size_t BYTES_TO_READ = min(BYTES_AVAILABLE, VS1053_PLAYBUFFER_SIZE);
 
-            if (stream->available() < BYTES_TO_READ)
-                break;
+            // if (stream->available() < BYTES_TO_READ)
+            //     break;
 
             const int BYTES_IN_BUFFER = stream->readBytes(_vs1053Buffer, BYTES_TO_READ);
             _vs1053->playChunk(_vs1053Buffer, BYTES_IN_BUFFER);
@@ -496,10 +499,10 @@ void ESP32_VS1053_Stream::_handleStream(WiFiClient *const stream)
             bytesToDecoder += BYTES_IN_BUFFER;
         }
         log_v("spend %lu ms stuffing %i bytes in decoder", millis() - start, bytesToDecoder);
-        if (bytesToDecoder == 0)
-        {
-            log_e("Stream hanged");
-        }
+        // if (bytesToDecoder == 0)
+        // {
+        //     log_e("Stream hanged");
+        // }
     }
 
     if (stream && stream->available() && _metaDataStart && _musicDataPosition == _metaDataStart)
