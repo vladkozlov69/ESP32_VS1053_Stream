@@ -587,10 +587,20 @@ void ESP32_VS1053_Stream::_handleChunkedStream(WiFiClient *const stream)
             const size_t BYTES_AVAILABLE = min(_bytesLeftInChunk, (size_t)_metaDataStart - _musicDataPosition);
             const size_t BYTES_TO_READ = min(BYTES_AVAILABLE, VS1053_PLAYBUFFER_SIZE);
 
+            int BYTES_IN_BUFFER = 0;
             if (stream->available() < BYTES_TO_READ)
-                break;
+            {
+                log_i("Not enough data in web stream buffer, trying to read byte-by-byte");
+                while(stream->available() && BYTES_IN_BUFFER < VS1053_PLAYBUFFER_SIZE)
+                {
+                    _vs1053Buffer[BYTES_IN_BUFFER++] = stream->read();
+                }
+            }
+            else
+            {
+                BYTES_IN_BUFFER = stream->readBytes(_vs1053Buffer, BYTES_TO_READ);
+            }
 
-            const int BYTES_IN_BUFFER = stream->readBytes(_vs1053Buffer, BYTES_TO_READ);
             _vs1053->playChunk(_vs1053Buffer, BYTES_IN_BUFFER);
             _bytesLeftInChunk -= BYTES_IN_BUFFER;
             _musicDataPosition += _metaDataStart ? BYTES_IN_BUFFER : 0;
