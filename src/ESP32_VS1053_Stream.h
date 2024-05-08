@@ -26,6 +26,7 @@
 extern void audio_showstation(const char *) __attribute__((weak));
 extern void audio_eof_stream(const char *) __attribute__((weak));
 extern void audio_showstreamtitle(const char *) __attribute__((weak));
+extern void audio_stream_stats(const unsigned int info) __attribute__((weak));
 
 class ESP32_VS1053_Stream
 {

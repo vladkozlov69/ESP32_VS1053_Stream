@@ -428,6 +428,7 @@ void ESP32_VS1053_Stream::_playFromRingBuffer()
         _remainingBytes -= _remainingBytes > 0 ? size : 0;
     }
     log_d("spend %lu ms stuffing %i bytes in decoder", millis() - START_TIME_MS, bytesToDecoder);
+    if (audio_stream_stats) audio_stream_stats(bytesToDecoder);
 }
 
 void ESP32_VS1053_Stream::_streamToRingBuffer(WiFiClient *const stream)
@@ -492,6 +493,7 @@ void ESP32_VS1053_Stream::_handleStream(WiFiClient *const stream)
             bytesToDecoder += BYTES_IN_BUFFER;
         }
         log_d("spend %lu ms stuffing %i bytes in decoder", millis() - START_TIME_MS, bytesToDecoder);
+        if (audio_stream_stats) audio_stream_stats(bytesToDecoder);
     }
 
     if (stream && stream->available() && _metaDataStart && _musicDataPosition == _metaDataStart)
@@ -579,6 +581,7 @@ void ESP32_VS1053_Stream::_handleChunkedStream(WiFiClient *const stream)
             bytesToDecoder += BYTES_IN_BUFFER;
         }
         log_d("spend %lu ms stuffing %i bytes in decoder", millis() - START_TIME_MS, bytesToDecoder);
+        if (audio_stream_stats) audio_stream_stats(bytesToDecoder);
     }
 
     if (stream && stream->available() && _metaDataStart && _musicDataPosition == _metaDataStart && _bytesLeftInChunk)
