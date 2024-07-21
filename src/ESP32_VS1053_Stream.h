@@ -63,6 +63,10 @@ public:
     uint32_t bitrate();
     const char *bufferStatus();
     void bufferStatus(size_t &used, size_t &capacity);
+    VS1053 * chip()
+    {
+        return _vs1053;
+    }
 
 private:
     VS1053 *_vs1053;
