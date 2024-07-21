@@ -27,6 +27,7 @@
 extern void audio_showstation(const char *) __attribute__((weak));
 extern void audio_eof_stream(const char *) __attribute__((weak));
 extern void audio_showstreamtitle(const char *) __attribute__((weak));
+extern void audio_stream_stats(const unsigned int info) __attribute__((weak));
 
 class ESP32_VS1053_Stream
 {
@@ -66,6 +67,10 @@ public:
     uint32_t bitrate();
     const char *bufferStatus();
     void bufferStatus(size_t &used, size_t &capacity);
+    VS1053 * chip()
+    {
+        return _vs1053;
+    }
 
 private:
     VS1053 *_vs1053;
@@ -73,6 +78,7 @@ private:
     uint8_t _vs1053Buffer[VS1053_PLAYBUFFER_SIZE];
     uint8_t _localbuffer[VS1053_PSRAM_MAX_MOVE];
     char _url[VS1053_MAX_URL_LENGTH];
+    char _savedStartChar = 0;
 
     RingbufHandle_t _ringbuffer_handle;
     StaticRingbuffer_t *_buffer_struct;
