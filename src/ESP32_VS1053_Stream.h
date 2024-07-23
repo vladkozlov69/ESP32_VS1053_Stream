@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <HTTPClient.h>
+#include <FS.h>
 #include <freertos/ringbuf.h>
 #include <esp_heap_caps.h>
 #include <VS1053.h> /* https://github.com/baldram/ESP_VS1053_Library */
@@ -13,7 +14,7 @@
 #define VS1053_CONNECT_TIMEOUT_MS_SSL 2500
 #define VS1053_NOBUFFER_TIMEOUT_MS 900
 #define VS1053_MAX_PLAYLIST_READ 1024
-#define VS1053_MAX_URL_LENGTH 512
+#define VS1053_MAX_URL_LENGTH 256
 #define VS1053_MAX_REDIRECT_COUNT 3
 
 #define VS1053_PSRAM_BUFFER_ENABLED true
@@ -42,6 +43,9 @@ public:
     bool connecttohost(const char *url, const size_t offset);
     bool connecttohost(const char *url, const char *username, const char *pwd);
     bool connecttohost(const char *url, const char *username, const char *pwd, const size_t offset);
+
+    bool connecttofile(fs::FS &fs, const char *filename);
+    bool connecttofile(fs::FS &fs, const char *filename, const size_t offset);
 
     void loop();
     bool isRunning();
@@ -80,6 +84,10 @@ private:
     StaticRingbuffer_t *_buffer_struct;
     uint8_t *_buffer_storage;
 
+    File _file;
+    fs::FS *_filesystem;
+    bool _playingFile = false;
+
     size_t _nextChunkSize(WiFiClient *const stream);
     bool _checkSync(WiFiClient *const stream);
     void _handleMetadata(char *data, const size_t len);
@@ -93,6 +101,7 @@ private:
     void _playFromRingBuffer();
     void _streamToRingBuffer(WiFiClient *const stream);
     void _chunkedStreamToRingBuffer(WiFiClient *const stream);
+    void _handleLocalFile();
 
     unsigned long _startMute = 0;
     size_t _offset = 0;
@@ -101,7 +110,6 @@ private:
     int32_t _metaDataStart = 0;
     int32_t _musicDataPosition = 0;
     uint8_t _volume = VS1053_INITIALVOLUME;
-    int _bitrate = 0;
     bool _chunkedResponse = false;
     bool _dataSeen = false;
     bool _ringbuffer_filled = false;
@@ -116,6 +124,13 @@ private:
         AAC,
         AACP
     } _currentCodec = STOPPED;
+
+    const char *CONTENT_TYPE = "Content-Type";
+    const char *ICY_NAME = "icy-name";
+    const char *ICY_METAINT = "icy-metaint";
+    const char *ENCODING = "Transfer-Encoding";
+    const char *BITRATE = "icy-br";
+    const char *LOCATION = "Location";    
 };
 
 #endif
